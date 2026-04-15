@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invictus Analytics</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+body { background: #f0f2f5; color: #1a1a2e; font-size: 13px; }
+
+.header {
+  background: #0d1b2a; color: #fff;
+  padding: 10px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.header h2 { font-size: 15px; font-weight: 700; letter-spacing: 0.3px; }
+.header-meta { font-size: 11px; color: #90caf9; }
+
+.controls {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 24px; background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  flex-wrap: wrap; position: sticky; top: 41px; z-index: 100;
+}
+.ctrl-group { display: flex; align-items: center; gap: 6px; }
+.ctrl-group label { font-size: 11px; color: #666; }
+.ctrl-group input[type="date"] {
+  padding: 5px 9px; border: 1px solid #d0d0d0;
+  border-radius: 6px; font-size: 12px; outline: none; color: #1a1a2e;
+}
+.ctrl-group input[type="date"]:focus { border-color: #1565c0; }
+
+.btn { padding: 6px 18px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: background 0.2s; }
+.btn-run  { background: #1565c0; color: #fff; }
+.btn-run:hover { background: #0d47a1; }
+.btn-run:disabled { background: #9e9e9e; cursor: not-allowed; }
+
+.quick-btns { display: flex; gap: 6px; }
+.qbtn {
+  padding: 4px 10px; border: 1px solid #d0d0d0; border-radius: 5px;
+  background: #f5f5f5; cursor: pointer; font-size: 11px; color: #444;
+  transition: all 0.15s;
+}
+.qbtn:hover { background: #e3f2fd; border-color: #1565c0; color: #1565c0; }
+
+.content { padding: 16px 24px 40px; }
+
+.loading { display: flex; align-items: center; gap: 14px; padding: 50px 20px; color: #777; justify-content: center; flex-direction: column; }
+.spinner { width: 36px; height: 36px; border: 4px solid #e0e0e0; border-top-color: #1565c0; border-radius: 50%; animation: spin 0.75s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-box { background: #fce8e8; border: 1px solid #ef9a9a; color: #b71c1c; padding: 12px 16px; border-radius: 8px; margin-bottom: 14px; }
+
+/* KPI */
+.kpi-grid { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.kpi-card {
+  background: #fff; border-radius: 10px; padding: 12px 18px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08); border-top: 3px solid #1565c0;
+  flex: 1; min-width: 120px; max-width: 180px;
+}
+.kpi-card.warn { border-top-color: #c62828; }
+.kpi-label { font-size: 10px; color: #888; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+.kpi-value { font-size: 20px; font-weight: 700; color: #0d1b2a; line-height: 1.1; }
+.kpi-sub   { font-size: 10px; color: #999; margin-top: 3px; }
+
+.section-title { font-size: 13px; font-weight: 700; color: #0d1b2a; margin: 20px 0 8px; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; border-radius: 10px; box-shadow: 0 1px 8px rgba(0,0,0,0.08); margin-bottom: 24px; }
+table { border-collapse: collapse; background: #fff; white-space: nowrap; width: 100%; }
+
+thead th {
+  background: #1565c0; color: #fff;
+  padding: 9px 12px; text-align: center;
+  font-size: 11px; font-weight: 500;
+  border-right: 1px solid rgba(255,255,255,0.1);
+}
+thead th.sticky-col {
+  position: sticky; left: 0; z-index: 10;
+  background: #1565c0; text-align: left; min-width: 160px;
+}
+thead tr.group-row th {
+  background: #0d47a1; font-size: 10px; padding: 4px 12px;
+  letter-spacing: 0.6px; text-transform: uppercase; color: #90caf9;
+}
+thead tr.group-row th.sticky-col { background: #0d47a1; }
+
+tbody td {
+  padding: 7px 12px; text-align: center;
+  border-right: 1px solid #eeeeee; border-bottom: 1px solid #f5f5f5;
+  font-size: 12px; line-height: 1.3;
+}
+tbody td.sticky-col {
+  position: sticky; left: 0; z-index: 1;
+  background: #fff; text-align: left; font-weight: 500;
+  border-right: 2px solid #e0e0e0; min-width: 160px;
+}
+tbody tr:nth-child(even) td             { background: #fafafa; }
+tbody tr:nth-child(even) td.sticky-col  { background: #fafafa; }
+tbody tr.total-row td                   { background: #e3f2fd !important; font-weight: 700; border-top: 2px solid #1565c0; }
+tbody tr.total-row td.sticky-col        { background: #e3f2fd !important; }
+td.warn             { background: #fce8e8 !important; color: #b71c1c; font-weight: 600; }
+td.warn.sticky-col  { background: #fce8e8 !important; }
+
+td.sale-stage   { background: #e8f5e9 !important; color: #1b5e20; }
+td.lost-stage   { background: #fce8e8 !important; color: #b71c1c; }
+
+.empty-state { text-align: center; padding: 50px 20px; color: #aaa; font-size: 13px; }
+
+/* Config modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 1000;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: #fff; border-radius: 12px; padding: 24px 28px;
+  width: 480px; max-width: 95vw;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+}
+.modal-box h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; color: #0d1b2a; }
+.field-row { margin-bottom: 12px; }
+.field-row label { font-size: 11px; color: #666; display: block; margin-bottom: 4px; }
+.field-row input {
+  width: 100%; padding: 7px 10px; border: 1px solid #d0d0d0;
+  border-radius: 6px; font-size: 12px; outline: none;
+}
+.field-row input:focus { border-color: #1565c0; }
+.modal-footer { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; }
+.btn-secondary { background: #f5f5f5; color: #444; }
+.btn-secondary:hover { background: #e0e0e0; }
+</style>
+</head>
+<body>
+
+<!-- Config Modal -->
+<div class="modal-overlay" id="config-modal">
+  <div class="modal-box">
+    <h3>⚙️ Подключение к Supabase</h3>
+    <div class="field-row">
+      <label>Supabase URL</label>
+      <input type="text" id="cfg-url" placeholder="https://XXXX.supabase.co">
+    </div>
+    <div class="field-row">
+      <label>Anon Key (из Settings → API)</label>
+      <input type="text" id="cfg-key" placeholder="eyJ...">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeConfig()">Отмена</button>
+      <button class="btn btn-run" onclick="saveConfig()">💾 Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="header">
+  <h2>📊 Invictus Analytics</h2>
+  <div style="display:flex;align-items:center;gap:14px">
+    <span class="header-meta" id="header-meta">Выберите период и нажмите «Загрузить»</span>
+    <button class="btn btn-secondary" style="padding:4px 12px;font-size:11px" onclick="openConfig()">⚙️</button>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="ctrl-group">
+    <label>С</label>
+    <input type="date" id="fromDate">
+  </div>
+  <div class="ctrl-group">
+    <label>по</label>
+    <input type="date" id="toDate">
+  </div>
+  <button class="btn btn-run" id="runBtn" onclick="doRun()">▶ Загрузить</button>
+  <div class="quick-btns">
+    <button class="qbtn" onclick="setQuick('month')">Этот месяц</button>
+    <button class="qbtn" onclick="setQuick('last_month')">Прошлый месяц</button>
+    <button class="qbtn" onclick="setQuick('week')">Эта неделя</button>
+    <button class="qbtn" onclick="setQuick('7days')">7 дней</button>
+    <button class="qbtn" onclick="setQuick('30days')">30 дней</button>
+  </div>
+</div>
+
+<div class="content">
+  <div id="loading-section" style="display:none">
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Загружаем данные из Supabase…</p>
+    </div>
+  </div>
+
+  <div id="error-section" style="display:none">
+    <div class="error-box" id="error-text"></div>
+  </div>
+
+  <div id="dashboard" style="display:none">
+    <div class="kpi-grid" id="kpi-grid"></div>
+
+    <div class="section-title">👥 Менеджеры</div>
+    <div class="table-wrap"><table id="managers-table"></table></div>
+
+    <div class="section-title">📈 Этапы воронки</div>
+    <div class="table-wrap"><table id="stages-table"></table></div>
+  </div>
+
+  <div id="empty-state" class="empty-state">
+    Выберите период и нажмите «Загрузить»
+  </div>
+</div>
+
+<script>
+// ── Конфиг воронки ──────────────────────────────────────────
+const SALE_STAGES = new Set([
+  'успешно реализовано',
+  'предоплата / траншевая оплата'
+]);
+
+const LOST_STAGES = new Set([
+  'закрыто и не реализовано (дорого (не смог продать))',
+  'закрыто и не реализовано (в следующий раз)',
+  'закрыто и не реализовано (пропала потребность)',
+  'закрыто и не реализовано (отказ рассрочки от банка)',
+  'закрыто и не реализовано (выбрали других)'
+]);
+
+const ABC_QUAL = new Set(['a', 'b']);
+
+const STAGES_ORDERED = [
+  'успешно реализовано',
+  'предоплата / траншевая оплата',
+  'рассылка',
+  'счет выставлен',
+  'наработка',
+  'оффер озвучен + дедлайн',
+  'закрыто и не реализовано (дорого (не смог продать))',
+  'закрыто и не реализовано (в следующий раз)',
+  'закрыто и не реализовано (пропала потребность)',
+  'закрыто и не реализовано (отказ рассрочки от банка)',
+  'закрыто и не реализовано (выбрали других)'
+];
+
+const STAGE_SHORT = {
+  'успешно реализовано':                                       '✅ Успешно',
+  'предоплата / траншевая оплата':                            '✅ Предопл.',
+  'рассылка':                                                  'Рассылка',
+  'счет выставлен':                                           'Счёт',
+  'наработка':                                                 'Нараб.',
+  'оффер озвучен + дедлайн':                                  'Оффер',
+  'закрыто и не реализовано (дорого (не смог продать))':      '❌ Дорого',
+  'закрыто и не реализовано (в следующий раз)':               '❌ В сл. раз',
+  'закрыто и не реализовано (пропала потребность)':           '❌ Нет потреб.',
+  'закрыто и не реализовано (отказ рассрочки от банка)':      '❌ Рассрочка',
+  'закрыто и не реализовано (выбрали других)':                '❌ Конкуренты'
+};
+
+// ── Supabase client ─────────────────────────────────────────
+let supabase = null;
+
+function getConfig() {
+  return {
+    url: localStorage.getItem('sb_url') || '',
+    key: localStorage.getItem('sb_key') || ''
+  };
+}
+
+function initSupabase() {
+  const cfg = getConfig();
+  if (!cfg.url || !cfg.key) return false;
+  supabase = window.supabase.createClient(cfg.url, cfg.key);
+  return true;
+}
+
+function openConfig() {
+  const cfg = getConfig();
+  document.getElementById('cfg-url').value = cfg.url;
+  document.getElementById('cfg-key').value = cfg.key;
+  document.getElementById('config-modal').classList.add('open');
+}
+
+function closeConfig() {
+  document.getElementById('config-modal').classList.remove('open');
+}
+
+function saveConfig() {
+  const url = document.getElementById('cfg-url').value.trim();
+  const key = document.getElementById('cfg-key').value.trim();
+  if (!url || !key) { alert('Заполни оба поля'); return; }
+  localStorage.setItem('sb_url', url);
+  localStorage.setItem('sb_key', key);
+  initSupabase();
+  closeConfig();
+}
+
+// ── Быстрые периоды ─────────────────────────────────────────
+function setQuick(period) {
+  const now = new Date();
+  const fmt = d => d.toISOString().slice(0, 10);
+  let from, to;
+
+  if (period === 'month') {
+    from = new Date(now.getFullYear(), now.getMonth(), 1);
+    to   = now;
+  } else if (period === 'last_month') {
+    from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    to   = new Date(now.getFullYear(), now.getMonth(), 0);
+  } else if (period === 'week') {
+    const day = now.getDay() || 7;
+    from = new Date(now); from.setDate(now.getDate() - day + 1);
+    to   = now;
+  } else if (period === '7days') {
+    from = new Date(now); from.setDate(now.getDate() - 6);
+    to   = now;
+  } else if (period === '30days') {
+    from = new Date(now); from.setDate(now.getDate() - 29);
+    to   = now;
+  }
+
+  document.getElementById('fromDate').value = fmt(from);
+  document.getElementById('toDate').value   = fmt(to);
+}
+
+// ── Загрузка данных ─────────────────────────────────────────
+async function fetchLeads(fromDate, toDate) {
+  const allLeads = [];
+  const pageSize = 1000;
+  let from = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from('leads')
+      .select('*')
+      .gte('created_at', fromDate + 'T00:00:00+00:00')
+      .lte('created_at', toDate   + 'T23:59:59+00:00')
+      .range(from, from + pageSize - 1);
+
+    if (error) throw new Error(error.message);
+    if (!data?.length) break;
+    allLeads.push(...data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+
+  return allLeads;
+}
+
+// ── Расчёт метрик ────────────────────────────────────────────
+function calcMetrics(leads) {
+  const pct = (a, b) => b > 0 ? +(a / b * 100).toFixed(1) : 0;
+
+  // Группируем по менеджеру
+  const byManager = {};
+
+  leads.forEach(lead => {
+    const uid  = lead.responsible_user_id;
+    const name = lead.responsible_user_name || `ID:${uid}`;
+
+    if (!byManager[uid]) {
+      byManager[uid] = {
+        uid, name,
+        totalLeads: 0,
+        abQual: 0, abQualSales: 0,
+        sales: 0, revenue: 0,
+        byStage: {}
+      };
+      STAGES_ORDERED.forEach(s => byManager[uid].byStage[s] = 0);
+    }
+
+    const m = byManager[uid];
+    m.totalLeads++;
+
+    const sn   = (lead.status_name || '').toLowerCase().trim();
+    const abc  = (lead.abc_qual   || '').toLowerCase().trim();
+    const sale = SALE_STAGES.has(sn);
+
+    if (ABC_QUAL.has(abc)) { m.abQual++; if (sale) m.abQualSales++; }
+    if (sale) { m.sales++; m.revenue += (lead.price || 0); }
+    if (m.byStage.hasOwnProperty(sn)) m.byStage[sn]++;
+  });
+
+  const rows = Object.values(byManager).map(m => ({
+    name:          m.name,
+    totalLeads:    m.totalLeads,
+    abQual:        m.abQual,
+    abQualPct:     pct(m.abQual, m.totalLeads),
+    sales:         m.sales,
+    revenue:       m.revenue,
+    avgCheck:      m.sales > 0 ? Math.round(m.revenue / m.sales) : 0,
+    convLeadSale:  pct(m.sales, m.totalLeads),
+    convAbSale:    pct(m.abQualSales, m.abQual),
+    byStage:       m.byStage,
+    byStagePct:    Object.fromEntries(
+      STAGES_ORDERED.map(s => [s, pct(m.byStage[s], m.totalLeads)])
+    )
+  })).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+
+  // ИТОГО
+  const sm = key => rows.reduce((s, r) => s + (r[key] || 0), 0);
+  const T = {
+    name: 'ИТОГО',
+    totalLeads:   sm('totalLeads'),
+    abQual:       sm('abQual'),
+    sales:        sm('sales'),
+    revenue:      sm('revenue')
+  };
+  T.abQualPct    = pct(T.abQual, T.totalLeads);
+  T.avgCheck     = T.sales > 0 ? Math.round(T.revenue / T.sales) : 0;
+  T.convLeadSale = pct(T.sales, T.totalLeads);
+  T.convAbSale   = pct(sm('abQualSales'), T.abQual);
+  T.byStage      = Object.fromEntries(
+    STAGES_ORDERED.map(s => [s, rows.reduce((a, r) => a + (r.byStage[s] || 0), 0)])
+  );
+  T.byStagePct   = Object.fromEntries(
+    STAGES_ORDERED.map(s => [s, pct(T.byStage[s], T.totalLeads)])
+  );
+
+  return [...rows, T];
+}
+
+// ── Рендер KPI ────────────────────────────────────────────────
+function renderKPI(managers, periodDays) {
+  const T = managers[managers.length - 1];
+  const cards = [
+    { label: 'Всего лидов',    value: num(T.totalLeads),        sub: (T.totalLeads / periodDays).toFixed(1) + ' в день' },
+    { label: 'Квал AB',        value: num(T.abQual),             sub: T.abQualPct + '% от лидов', warn: T.abQualPct < 30 },
+    { label: 'Продаж',         value: num(T.sales),              sub: 'конв. ' + T.convLeadSale + '%', warn: T.convLeadSale < 10 },
+    { label: 'Выручка',        value: money(T.revenue),          sub: 'ср. чек ' + money(T.avgCheck) },
+    { label: 'Конв. AB→прод',  value: T.convAbSale + '%',       sub: 'из квал-лидов', warn: T.convAbSale < 20 }
+  ];
+
+  document.getElementById('kpi-grid').innerHTML = cards.map(c =>
+    `<div class="kpi-card${c.warn ? ' warn' : ''}">
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-value">${c.value}</div>
+      <div class="kpi-sub">${c.sub}</div>
+    </div>`
+  ).join('');
+}
+
+// ── Рендер таблицы менеджеров ────────────────────────────────
+function renderManagersTable(managers) {
+  const cols = [
+    ['Менеджер',    'name',         'str'],
+    ['Лидов',       'totalLeads',   'num'],
+    ['Квал AB',     'abQual',       'num'],
+    ['AB %',        'abQualPct',    'pct'],
+    ['Продаж',      'sales',        'num'],
+    ['Выручка',     'revenue',      'money'],
+    ['Ср. чек',     'avgCheck',     'money'],
+    ['К: лид→прод', 'convLeadSale', 'pct'],
+    ['К: AB→прод',  'convAbSale',   'pct']
+  ];
+
+  const groups = [
+    { label: '',          span: 1 },
+    { label: 'Лиды',      span: 1 },
+    { label: 'AB Квал',   span: 3 },
+    { label: 'Продажи',   span: 3 },
+    { label: 'Конверсии', span: 2 }
+  ];
+
+  let html = '<thead>';
+  html += '<tr class="group-row">';
+  groups.forEach((g, i) => {
+    html += `<th class="${i === 0 ? 'sticky-col' : ''}" colspan="${g.span}">${g.label}</th>`;
+  });
+  html += '</tr><tr>';
+  cols.forEach((c, i) => {
+    html += `<th class="${i === 0 ? 'sticky-col' : ''}">${c[0]}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  managers.forEach((m, mi) => {
+    const isTotal = mi === managers.length - 1;
+    html += `<tr class="${isTotal ? 'total-row' : ''}">`;
+    cols.forEach((c, ci) => {
+      const sticky = ci === 0 ? ' sticky-col' : '';
+      const val    = m[c[1]];
+      let   disp   = '';
+      if      (c[2] === 'money') disp = money(val);
+      else if (c[2] === 'pct')   disp = val + '%';
+      else if (c[2] === 'num')   disp = num(val);
+      else                       disp = val;
+
+      // Warn: конверсии ниже порога
+      let warn = false;
+      if (!isTotal) {
+        if (c[1] === 'convLeadSale' && parseFloat(val) < 10) warn = true;
+        if (c[1] === 'convAbSale'   && parseFloat(val) < 20) warn = true;
+        if (c[1] === 'abQualPct'    && parseFloat(val) < 30) warn = true;
+      }
+
+      html += `<td class="${sticky}${warn ? ' warn' : ''}">${disp}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody>';
+  document.getElementById('managers-table').innerHTML = html;
+}
+
+// ── Рендер таблицы этапов ────────────────────────────────────
+function renderStagesTable(managers) {
+  let html = '<thead><tr>';
+  html += '<th class="sticky-col">Менеджер</th>';
+  STAGES_ORDERED.forEach(s => {
+    const isSale = SALE_STAGES.has(s);
+    const isLost = LOST_STAGES.has(s);
+    const style  = isSale ? ' style="background:#1b5e20"' : isLost ? ' style="background:#7f0000"' : '';
+    html += `<th${style} title="${s}">${STAGE_SHORT[s] || s}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  managers.forEach((m, mi) => {
+    const isTotal = mi === managers.length - 1;
+    html += `<tr class="${isTotal ? 'total-row' : ''}">`;
+    html += `<td class="sticky-col">${m.name}</td>`;
+    STAGES_ORDERED.forEach(s => {
+      const cnt  = m.byStage    ? (m.byStage[s]    || 0) : 0;
+      const pctV = m.byStagePct ? (m.byStagePct[s] || 0) : 0;
+      const cls  = SALE_STAGES.has(s) ? 'sale-stage' : LOST_STAGES.has(s) ? 'lost-stage' : '';
+      html += `<td class="${cls}">${cnt}<br><small style="color:#888">${pctV}%</small></td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody>';
+  document.getElementById('stages-table').innerHTML = html;
+}
+
+// ── Run ───────────────────────────────────────────────────────
+async function doRun() {
+  if (!supabase) { openConfig(); return; }
+
+  const from = document.getElementById('fromDate').value;
+  const to   = document.getElementById('toDate').value;
+  if (!from || !to) { alert('Выберите период'); return; }
+  if (from > to)    { alert('Дата "С" должна быть раньше "По"'); return; }
+
+  show('loading-section');
+  hide('dashboard'); hide('error-section'); hide('empty-state');
+  document.getElementById('runBtn').disabled = true;
+
+  try {
+    const leads = await fetchLeads(from, to);
+
+    if (!leads.length) {
+      hide('loading-section');
+      document.getElementById('runBtn').disabled = false;
+      document.getElementById('empty-state').style.display = 'block';
+      document.getElementById('empty-state').textContent = 'Нет лидов за выбранный период';
+      document.getElementById('header-meta').textContent = 'Нет данных за ' + from + ' — ' + to;
+      return;
+    }
+
+    const periodDays = Math.max(1, Math.round((new Date(to) - new Date(from)) / 86400000) + 1);
+    const managers   = calcMetrics(leads);
+    const T          = managers[managers.length - 1];
+
+    document.getElementById('header-meta').textContent =
+      `${from} — ${to}  |  Лидов: ${T.totalLeads}  |  Продаж: ${T.sales}  |  Выручка: ${money(T.revenue)}`;
+
+    renderKPI(managers, periodDays);
+    renderManagersTable(managers);
+    renderStagesTable(managers);
+
+    hide('loading-section');
+    show('dashboard');
+  } catch (err) {
+    hide('loading-section');
+    show('error-section');
+    document.getElementById('error-text').textContent = '❌ ' + err.message;
+  }
+
+  document.getElementById('runBtn').disabled = false;
+}
+
+// ── Utils ─────────────────────────────────────────────────────
+function num(v)   { return (v || 0).toLocaleString('ru-RU'); }
+function money(v) { return (v || 0).toLocaleString('ru-RU', { maximumFractionDigits: 0 }) + ' ₸'; }
+function show(id) { document.getElementById(id).style.display = 'block'; }
+function hide(id) { document.getElementById(id).style.display = 'none'; }
+
+// ── Init ──────────────────────────────────────────────────────
+window.onload = function () {
+  const cfg = getConfig();
+  if (cfg.url && cfg.key) {
+    initSupabase();
+  } else {
+    setTimeout(openConfig, 300);
+  }
+  setQuick('month');
+};
+</script>
+</body>
+</html>
