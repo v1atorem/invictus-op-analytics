@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Invictus Analytics</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
 body { background: #f0f2f5; color: #1a1a2e; font-size: 13px; }
@@ -255,14 +255,17 @@ const STAGE_SHORT = {
   'закрыто и не реализовано (выбрали других)':                '❌ Конкуренты'
 };
 
-// ── Supabase credentials — вставь свои ──────────────────────
+// ── Supabase credentials ─────────────────────────────────────
 const SUPABASE_URL = 'https://ejjfvokvyptaxzbytsvy.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_bBbfLn8is18mx3uwYpKVww_QanGyK5U';
 
 let supabase = null;
 
 function initSupabase() {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  supabase = {
+    url: SUPABASE_URL,
+    key: SUPABASE_KEY
+  };
   return true;
 }
 
@@ -298,21 +301,32 @@ function setQuick(period) {
 async function fetchLeads(fromDate, toDate) {
   const allLeads = [];
   const pageSize = 1000;
-  let from = 0;
+  let offset = 0;
 
   while (true) {
-    const { data, error } = await supabase
-      .from('leads')
-      .select('*')
-      .gte('created_at', fromDate + 'T00:00:00+00:00')
-      .lte('created_at', toDate   + 'T23:59:59+00:00')
-      .range(from, from + pageSize - 1);
+    const from = encodeURIComponent(fromDate + 'T00:00:00+00:00');
+    const to   = encodeURIComponent(toDate   + 'T23:59:59+00:00');
+    const url  = `${supabase.url}/rest/v1/leads?select=*&created_at=gte.${from}&created_at=lte.${to}&limit=${pageSize}&offset=${offset}&order=created_at.asc`;
 
-    if (error) throw new Error(error.message);
-    if (!data?.length) break;
+    const res = await fetch(url, {
+      headers: {
+        'apikey':        supabase.key,
+        'Authorization': 'Bearer ' + supabase.key,
+        'Range-Unit':    'items',
+        'Range':         `${offset}-${offset + pageSize - 1}`
+      }
+    });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`Supabase ${res.status}: ${txt}`);
+    }
+
+    const data = await res.json();
+    if (!data.length) break;
     allLeads.push(...data);
     if (data.length < pageSize) break;
-    from += pageSize;
+    offset += pageSize;
   }
 
   return allLeads;
