@@ -8,6 +8,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
 body { background: #f0f2f5; color: #1a1a2e; font-size: 13px; }
 
+/* ── Header ── */
 .header {
   background: #0d1b2a; color: #fff;
   padding: 10px 24px;
@@ -18,8 +19,9 @@ body { background: #f0f2f5; color: #1a1a2e; font-size: 13px; }
 .header h2 { font-size: 15px; font-weight: 700; }
 .header-meta { font-size: 11px; color: #90caf9; }
 
+/* ── Controls ── */
 .controls {
-  display: flex; align-items: center; gap: 12px;
+  display: flex; align-items: center; gap: 10px;
   padding: 10px 24px; background: #fff;
   border-bottom: 1px solid #e0e0e0;
   flex-wrap: wrap; position: sticky; top: 41px; z-index: 100;
@@ -30,37 +32,44 @@ body { background: #f0f2f5; color: #1a1a2e; font-size: 13px; }
   padding: 5px 9px; border: 1px solid #d0d0d0;
   border-radius: 6px; font-size: 12px; outline: none; color: #1a1a2e;
 }
-.btn { padding: 6px 18px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: background 0.2s; }
-.btn-run  { background: #1565c0; color: #fff; }
+.btn { padding: 6px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: background 0.2s; }
+.btn-run   { background: #1565c0; color: #fff; }
 .btn-run:hover { background: #0d47a1; }
 .btn-run:disabled { background: #9e9e9e; cursor: not-allowed; }
+.btn-norms { background: #e65100; color: #fff; }
+.btn-norms:hover { background: #bf360c; }
 .qbtn {
   padding: 4px 10px; border: 1px solid #d0d0d0; border-radius: 5px;
-  background: #f5f5f5; cursor: pointer; font-size: 11px; color: #444;
+  background: #f5f5f5; cursor: pointer; font-size: 11px; color: #444; transition: all 0.15s;
 }
 .qbtn:hover { background: #e3f2fd; border-color: #1565c0; color: #1565c0; }
 
+/* ── Content ── */
 .content { padding: 16px 24px 40px; }
 
+/* ── Loading ── */
 .loading { display: flex; align-items: center; gap: 14px; padding: 50px 20px; color: #777; justify-content: center; flex-direction: column; }
 .spinner { width: 36px; height: 36px; border: 4px solid #e0e0e0; border-top-color: #1565c0; border-radius: 50%; animation: spin 0.75s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .error-box { background: #fce8e8; border: 1px solid #ef9a9a; color: #b71c1c; padding: 12px 16px; border-radius: 8px; margin-bottom: 14px; }
 
+/* ── KPI ── */
 .kpi-grid { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
 .kpi-card {
   background: #fff; border-radius: 10px; padding: 12px 18px;
   box-shadow: 0 1px 6px rgba(0,0,0,0.08); border-top: 3px solid #1565c0;
-  flex: 1; min-width: 120px; max-width: 180px;
+  flex: 1; min-width: 130px; max-width: 190px;
 }
 .kpi-card.warn { border-top-color: #c62828; }
 .kpi-label { font-size: 10px; color: #888; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.4px; }
 .kpi-value { font-size: 20px; font-weight: 700; color: #0d1b2a; line-height: 1.1; }
 .kpi-sub   { font-size: 10px; color: #999; margin-top: 3px; }
 
-.section-title { font-size: 13px; font-weight: 700; color: #0d1b2a; margin: 20px 0 8px; }
+/* ── Section title ── */
+.section-title { font-size: 13px; font-weight: 700; color: #0d1b2a; margin: 20px 0 8px; display: flex; align-items: center; gap: 6px; }
 
+/* ── Tables ── */
 .table-wrap { overflow-x: auto; border-radius: 10px; box-shadow: 0 1px 8px rgba(0,0,0,0.08); margin-bottom: 24px; }
 table { border-collapse: collapse; background: #fff; white-space: nowrap; width: 100%; }
 thead th {
@@ -72,15 +81,49 @@ thead th {
 thead th.sticky-col { position: sticky; left: 0; z-index: 10; background: #1565c0; text-align: left; min-width: 160px; }
 thead tr.group-row th { background: #0d47a1; font-size: 10px; padding: 4px 12px; letter-spacing: 0.6px; text-transform: uppercase; color: #90caf9; }
 thead tr.group-row th.sticky-col { background: #0d47a1; }
-tbody td { padding: 7px 12px; text-align: center; border-right: 1px solid #eee; border-bottom: 1px solid #f5f5f5; font-size: 12px; }
-tbody td.sticky-col { position: sticky; left: 0; z-index: 1; background: #fff; text-align: left; font-weight: 500; border-right: 2px solid #e0e0e0; }
-tbody tr:nth-child(even) td { background: #fafafa; }
-tbody tr:nth-child(even) td.sticky-col { background: #fafafa; }
-tbody tr.total-row td { background: #e3f2fd !important; font-weight: 700; border-top: 2px solid #1565c0; }
-tbody tr.total-row td.sticky-col { background: #e3f2fd !important; }
-td.warn { background: #fce8e8 !important; color: #b71c1c; font-weight: 600; }
-td.sale-stage { background: #e8f5e9 !important; color: #1b5e20; }
-td.lost-stage { background: #fce8e8 !important; color: #b71c1c; }
+tbody td { padding: 7px 12px; text-align: center; border-right: 1px solid #eee; border-bottom: 1px solid #f5f5f5; font-size: 12px; line-height: 1.3; }
+tbody td.sticky-col { position: sticky; left: 0; z-index: 1; background: #fff; text-align: left; font-weight: 500; border-right: 2px solid #e0e0e0; min-width: 160px; }
+tbody tr:nth-child(even) td             { background: #fafafa; }
+tbody tr:nth-child(even) td.sticky-col  { background: #fafafa; }
+tbody tr.total-row td                   { background: #e3f2fd !important; font-weight: 700; border-top: 2px solid #1565c0; }
+tbody tr.total-row td.sticky-col        { background: #e3f2fd !important; }
+td.warn             { background: #fce8e8 !important; color: #b71c1c; font-weight: 600; }
+td.warn.sticky-col  { background: #fce8e8 !important; }
+td.sale-cell  { background: #e8f5e9 !important; color: #1b5e20; }
+td.lost-cell  { background: #fce8e8 !important; color: #b71c1c; }
+td.other-cell { background: #fff8e1 !important; color: #e65100; }
+
+/* ── Tooltip ── */
+td[data-tip]:not([data-tip=""]) { cursor: help; }
+td[data-tip]:not([data-tip=""]):hover::after {
+  content: attr(data-tip);
+  position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  background: #212121; color: #fff; padding: 9px 13px; border-radius: 7px;
+  white-space: normal; width: 220px; font-size: 11px; line-height: 1.5; z-index: 1000;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3); text-align: left; font-weight: normal; pointer-events: none;
+}
+td[data-tip] { position: relative; }
+
+/* ── Norms Panel ── */
+.norms-panel {
+  background: #fff; border-radius: 10px; padding: 18px 20px;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.08); margin-bottom: 18px;
+}
+.norms-panel h3 { font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #0d1b2a; }
+.norms-panel p  { font-size: 11px; color: #888; margin-bottom: 14px; }
+.norms-section-label { font-size: 11px; font-weight: 700; color: #1565c0; margin: 14px 0 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.norms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 8px; margin-bottom: 6px; }
+.norm-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 8px; background: #f9f9f9; }
+.norm-label { flex: 1; font-size: 11px; color: #444; }
+.norm-inputs { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+.norm-inputs span { font-size: 10px; color: #888; }
+.norm-inputs input { width: 60px; padding: 4px 6px; border: 1px solid #d0d0d0; border-radius: 5px; font-size: 12px; text-align: center; outline: none; }
+.norm-inputs input:focus { border-color: #1565c0; }
+.norms-footer { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+.btn-save { padding: 7px 18px; background: #0d1b2a; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+.btn-save:hover { background: #1565c0; }
+.saved-ok { display: none; color: #2e7d32; font-size: 12px; font-weight: 600; }
+
 .empty-state { text-align: center; padding: 50px 20px; color: #aaa; font-size: 13px; }
 </style>
 </head>
@@ -100,7 +143,8 @@ td.lost-stage { background: #fce8e8 !important; color: #b71c1c; }
     <label>по</label>
     <input type="date" id="toDate">
   </div>
-  <button class="btn btn-run" id="runBtn" onclick="doRun()">▶ Загрузить</button>
+  <button class="btn btn-run"   id="runBtn" onclick="doRun()">▶ Загрузить</button>
+  <button class="btn btn-norms" onclick="toggleNorms()">⚙️ Нормативы</button>
   <button class="qbtn" onclick="setQuick('month')">Этот месяц</button>
   <button class="qbtn" onclick="setQuick('last_month')">Прошлый месяц</button>
   <button class="qbtn" onclick="setQuick('week')">Эта неделя</button>
@@ -109,12 +153,27 @@ td.lost-stage { background: #fce8e8 !important; color: #b71c1c; }
 </div>
 
 <div class="content">
+
+  <!-- Norms -->
+  <div id="norms-section" style="display:none">
+    <div class="norms-panel">
+      <h3>⚙️ Нормативы</h3>
+      <p>Ячейки подсветятся красным, если показатель выходит за пределы норматива.</p>
+      <div id="norms-body"></div>
+      <div class="norms-footer">
+        <button class="btn-save" onclick="saveNorms()">💾 Сохранить</button>
+        <span class="saved-ok" id="saved-ok">✅ Сохранено!</span>
+      </div>
+    </div>
+  </div>
+
   <div id="loading-section" style="display:none">
-    <div class="loading"><div class="spinner"></div><p>Загружаем данные…</p></div>
+    <div class="loading"><div class="spinner"></div><p>Загружаем данные из Supabase…</p></div>
   </div>
   <div id="error-section" style="display:none">
     <div class="error-box" id="error-text"></div>
   </div>
+
   <div id="dashboard" style="display:none">
     <div class="kpi-grid" id="kpi-grid"></div>
     <div class="section-title">👥 Менеджеры</div>
@@ -122,15 +181,20 @@ td.lost-stage { background: #fce8e8 !important; color: #b71c1c; }
     <div class="section-title">📈 Этапы воронки</div>
     <div class="table-wrap"><table id="stages-table"></table></div>
   </div>
+
   <div id="empty-state" class="empty-state">Выберите период и нажмите «Загрузить»</div>
 </div>
 
 <script>
-// ── НАСТРОЙКИ — вставь свои ключи ────────────────────────────
+'use strict';
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  НАСТРОЙКИ — вставь свои данные                         ║
+// ╚══════════════════════════════════════════════════════════╝
 var SB_URL = 'https://ejjfvokvyptaxzbytsvy.supabase.co';
 var SB_KEY = 'sb_publishable_bBbfLn8is18mx3uwYpKVww_QanGyK5U';
 
-// ── Конфиг воронки ────────────────────────────────────────────
+// ── Воронка ──────────────────────────────────────────────────
 var SALE_STAGES = ['успешно реализовано', 'предоплата / траншевая оплата'];
 var LOST_STAGES = [
   'закрыто и не реализовано (дорого (не смог продать))',
@@ -140,61 +204,142 @@ var LOST_STAGES = [
   'закрыто и не реализовано (выбрали других)'
 ];
 var ABC_QUAL = ['a', 'b'];
-var STAGES_ORDERED = [
-  'успешно реализовано',
-  'предоплата / траншевая оплата',
-  'рассылка',
-  'счет выставлен',
-  'наработка',
-  'оффер озвучен + дедлайн',
-  'закрыто и не реализовано (дорого (не смог продать))',
-  'закрыто и не реализовано (в следующий раз)',
-  'закрыто и не реализовано (пропала потребность)',
-  'закрыто и не реализовано (отказ рассрочки от банка)',
-  'закрыто и не реализовано (выбрали других)'
-];
-var STAGE_SHORT = {
-  'успешно реализовано':                                       '✅ Успешно',
-  'предоплата / траншевая оплата':                            '✅ Предопл.',
-  'рассылка':                                                  'Рассылка',
-  'счет выставлен':                                           'Счёт',
-  'наработка':                                                 'Нараб.',
-  'оффер озвучен + дедлайн':                                  'Оффер',
-  'закрыто и не реализовано (дорого (не смог продать))':      '❌ Дорого',
-  'закрыто и не реализовано (в следующий раз)':               '❌ В сл. раз',
-  'закрыто и не реализовано (пропала потребность)':           '❌ Нет потреб.',
-  'закрыто и не реализовано (отказ рассрочки от банка)':      '❌ Рассрочка',
-  'закрыто и не реализовано (выбрали других)':                '❌ Конкуренты'
+
+// ── Нормативы по умолчанию ───────────────────────────────────
+var DEFAULT_NORMS = {
+  conv_lead_sale:       { label: 'Конв. лид → продажа',           unit: '%', min: 10,  max: null },
+  conv_ab_sale:         { label: 'Конв. AB → продажа',            unit: '%', min: 20,  max: null },
+  ab_qual_pct:          { label: '% квал AB (A/B) от лидов',      unit: '%', min: 30,  max: null },
+  lost_dorogo_pct:      { label: '% закрыто (дорого)',            unit: '%', min: null, max: 15 },
+  lost_next_time_pct:   { label: '% закрыто (в следующий раз)',   unit: '%', min: null, max: 15 },
+  lost_no_need_pct:     { label: '% закрыто (пропала потребность)',unit: '%', min: null, max: 10 },
+  lost_rassrochka_pct:  { label: '% закрыто (отказ рассрочки)',   unit: '%', min: null, max: 10 },
+  lost_competitors_pct: { label: '% закрыто (выбрали других)',    unit: '%', min: null, max: 15 }
 };
+
+// Карта: название этапа → ключ норматива (для подсветки в таблице)
+var LOST_STAGE_NORM = {
+  'закрыто и не реализовано (дорого (не смог продать))':   'lost_dorogo_pct',
+  'закрыто и не реализовано (в следующий раз)':            'lost_next_time_pct',
+  'закрыто и не реализовано (пропала потребность)':        'lost_no_need_pct',
+  'закрыто и не реализовано (отказ рассрочки от банка)':   'lost_rassrochka_pct',
+  'закрыто и не реализовано (выбрали других)':             'lost_competitors_pct'
+};
+
+// ── Утилиты ──────────────────────────────────────────────────
+function num(v)   { return (+(v||0)).toLocaleString('ru-RU'); }
+function money(v) { return (+(v||0)).toLocaleString('ru-RU', {maximumFractionDigits:0}) + ' ₸'; }
+function pct(a, b){ return b > 0 ? parseFloat((a / b * 100).toFixed(1)) : 0; }
+function isSale(s){ return SALE_STAGES.indexOf(s) >= 0; }
+function isLost(s){ return LOST_STAGES.indexOf(s) >= 0; }
+
+function el(id) { return document.getElementById(id); }
+function show(id){ el(id).style.display = 'block'; }
+function hide(id){ el(id).style.display = 'none'; }
+
+// ── Нормативы: localStorage ──────────────────────────────────
+function getNorms() {
+  try {
+    var saved = JSON.parse(localStorage.getItem('inv_norms') || '{}');
+    var result = JSON.parse(JSON.stringify(DEFAULT_NORMS));
+    Object.keys(saved).forEach(function(k) {
+      if (result[k]) { result[k].min = saved[k].min; result[k].max = saved[k].max; }
+    });
+    return result;
+  } catch(e) { return JSON.parse(JSON.stringify(DEFAULT_NORMS)); }
+}
+
+function saveNorms() {
+  var norms = getNorms();
+  Object.keys(norms).forEach(function(k) {
+    var minEl = el('nmin_' + k);
+    var maxEl = el('nmax_' + k);
+    if (minEl) norms[k].min = minEl.value !== '' ? parseFloat(minEl.value) : null;
+    if (maxEl) norms[k].max = maxEl.value !== '' ? parseFloat(maxEl.value) : null;
+  });
+  var toSave = {};
+  Object.keys(norms).forEach(function(k) { toSave[k] = { min: norms[k].min, max: norms[k].max }; });
+  localStorage.setItem('inv_norms', JSON.stringify(toSave));
+  el('saved-ok').style.display = 'inline';
+  setTimeout(function() { el('saved-ok').style.display = 'none'; }, 2500);
+}
+
+function checkNorm(key, value) {
+  var norms = getNorms();
+  var n = norms[key];
+  if (!n) return { ok: true };
+  var v = parseFloat(value);
+  if (n.min !== null && n.min !== undefined && v < n.min) return { ok: false };
+  if (n.max !== null && n.max !== undefined && v > n.max) return { ok: false };
+  return { ok: true };
+}
+
+// ── Рендер панели нормативов ──────────────────────────────────
+function renderNormsPanel() {
+  var norms = getNorms();
+  var html = '';
+
+  html += '<div class="norms-section-label">Конверсии и квалификация</div>';
+  html += '<div class="norms-grid">';
+  ['conv_lead_sale','conv_ab_sale','ab_qual_pct'].forEach(function(k) {
+    var n = norms[k];
+    html += normItem(k, n);
+  });
+  html += '</div>';
+
+  html += '<div class="norms-section-label">Причины закрытия (максимум %)</div>';
+  html += '<div class="norms-grid">';
+  ['lost_dorogo_pct','lost_next_time_pct','lost_no_need_pct','lost_rassrochka_pct','lost_competitors_pct'].forEach(function(k) {
+    var n = norms[k];
+    html += normItem(k, n);
+  });
+  html += '</div>';
+
+  el('norms-body').innerHTML = html;
+}
+
+function normItem(k, n) {
+  return '<div class="norm-item">'
+    + '<span class="norm-label">' + n.label + '</span>'
+    + '<div class="norm-inputs">'
+    + '<span>мин %</span><input type="number" id="nmin_' + k + '" value="' + (n.min !== null && n.min !== undefined ? n.min : '') + '" placeholder="—" min="0" max="100">'
+    + '<span>макс %</span><input type="number" id="nmax_' + k + '" value="' + (n.max !== null && n.max !== undefined ? n.max : '') + '" placeholder="—" min="0" max="100">'
+    + '</div></div>';
+}
+
+function toggleNorms() {
+  var s = el('norms-section');
+  if (s.style.display === 'none') { renderNormsPanel(); show('norms-section'); }
+  else hide('norms-section');
+}
 
 // ── Быстрые периоды ──────────────────────────────────────────
 function setQuick(period) {
   var now = new Date();
   var fmt = function(d) { return d.toISOString().slice(0, 10); };
-  var from, to;
+  var from, to = now;
   if (period === 'month') {
-    from = new Date(now.getFullYear(), now.getMonth(), 1); to = now;
+    from = new Date(now.getFullYear(), now.getMonth(), 1);
   } else if (period === 'last_month') {
     from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     to   = new Date(now.getFullYear(), now.getMonth(), 0);
   } else if (period === 'week') {
     var day = now.getDay() || 7;
-    from = new Date(now); from.setDate(now.getDate() - day + 1); to = now;
+    from = new Date(now); from.setDate(now.getDate() - day + 1);
   } else if (period === '7days') {
-    from = new Date(now); from.setDate(now.getDate() - 6); to = now;
+    from = new Date(now); from.setDate(now.getDate() - 6);
   } else if (period === '30days') {
-    from = new Date(now); from.setDate(now.getDate() - 29); to = now;
+    from = new Date(now); from.setDate(now.getDate() - 29);
   }
-  document.getElementById('fromDate').value = fmt(from);
-  document.getElementById('toDate').value   = fmt(to);
+  el('fromDate').value = fmt(from);
+  el('toDate').value   = fmt(to);
 }
 
-// ── Загрузка из Supabase REST ─────────────────────────────────
+// ── Fetch из Supabase ────────────────────────────────────────
 async function fetchLeads(fromDate, toDate) {
   var all = [];
   var pageSize = 1000;
   var offset = 0;
-
   while (true) {
     var url = SB_URL + '/rest/v1/leads'
       + '?select=*'
@@ -202,109 +347,121 @@ async function fetchLeads(fromDate, toDate) {
       + '&created_at=lte.' + toDate   + 'T23:59:59'
       + '&limit=' + pageSize
       + '&offset=' + offset;
-
     var res = await fetch(url, {
-      headers: {
-        'apikey': SB_KEY,
-        'Authorization': 'Bearer ' + SB_KEY
-      }
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
     });
-
-    if (!res.ok) {
-      var txt = await res.text();
-      throw new Error('Supabase ' + res.status + ': ' + txt);
-    }
-
+    if (!res.ok) { var t = await res.text(); throw new Error('Supabase ' + res.status + ': ' + t); }
     var data = await res.json();
     if (!data || !data.length) break;
     all = all.concat(data);
     if (data.length < pageSize) break;
     offset += pageSize;
   }
-
   return all;
 }
 
 // ── Расчёт метрик ─────────────────────────────────────────────
-function calcMetrics(leads) {
-  function pct(a, b) { return b > 0 ? parseFloat((a / b * 100).toFixed(1)) : 0; }
+function calcMetrics(leads, fromDate, toDate) {
+  var now        = new Date();
+  var daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  var daysLeft    = Math.max(0, daysInMonth - now.getDate());
+  var periodDays  = Math.max(1, Math.round((new Date(toDate) - new Date(fromDate)) / 86400000) + 1);
 
+  // Собираем все уникальные этапы из данных
+  var stageSet = {};
+  leads.forEach(function(l) {
+    var sn = (l.status_name || '').toLowerCase().trim();
+    if (sn) stageSet[sn] = true;
+  });
+
+  // Сортируем: продажи → активные → закрытые
+  var allStages = Object.keys(stageSet).sort(function(a, b) {
+    var aSale = isSale(a) ? 0 : isLost(a) ? 2 : 1;
+    var bSale = isSale(b) ? 0 : isLost(b) ? 2 : 1;
+    if (aSale !== bSale) return aSale - bSale;
+    return a.localeCompare(b, 'ru');
+  });
+
+  // Группируем по менеджеру
   var byManager = {};
-
   leads.forEach(function(lead) {
     var uid  = lead.responsible_user_id;
     var name = lead.responsible_user_name || ('ID:' + uid);
-
     if (!byManager[uid]) {
       byManager[uid] = { uid: uid, name: name, totalLeads: 0, abQual: 0, abQualSales: 0, sales: 0, revenue: 0, byStage: {} };
-      STAGES_ORDERED.forEach(function(s) { byManager[uid].byStage[s] = 0; });
+      allStages.forEach(function(s) { byManager[uid].byStage[s] = 0; });
     }
-
     var m   = byManager[uid];
-    var sn  = (lead.status_name  || '').toLowerCase().trim();
-    var abc = (lead.abc_qual     || '').toLowerCase().trim();
-    var isSale = SALE_STAGES.indexOf(sn) >= 0;
-
+    var sn  = (lead.status_name || '').toLowerCase().trim();
+    var abc = (lead.abc_qual    || '').toLowerCase().trim();
+    var sale = isSale(sn);
     m.totalLeads++;
-    if (ABC_QUAL.indexOf(abc) >= 0) { m.abQual++; if (isSale) m.abQualSales++; }
-    if (isSale) { m.sales++; m.revenue += (lead.price || 0); }
+    if (ABC_QUAL.indexOf(abc) >= 0) { m.abQual++; if (sale) m.abQualSales++; }
+    if (sale) { m.sales++; m.revenue += (lead.price || 0); }
     if (m.byStage.hasOwnProperty(sn)) m.byStage[sn]++;
   });
 
   var rows = Object.values(byManager).map(function(m) {
+    var dailyRev = m.revenue / periodDays;
+    var forecast = Math.round(m.revenue + dailyRev * daysLeft);
+    var byStagePct = {};
+    allStages.forEach(function(s) { byStagePct[s] = pct(m.byStage[s], m.totalLeads); });
     return {
       name:         m.name,
       totalLeads:   m.totalLeads,
+      leadsPerDay:  parseFloat((m.totalLeads / periodDays).toFixed(2)),
       abQual:       m.abQual,
       abQualSales:  m.abQualSales,
-      abQualPct:    pct(m.abQual, m.totalLeads),
+      abQualPct:    pct(m.abQual,       m.totalLeads),
       sales:        m.sales,
       revenue:      m.revenue,
       avgCheck:     m.sales > 0 ? Math.round(m.revenue / m.sales) : 0,
-      convLeadSale: pct(m.sales, m.totalLeads),
-      convAbSale:   pct(m.abQualSales, m.abQual),
+      forecast:     forecast,
+      convLeadSale: pct(m.sales,        m.totalLeads),
+      convAbSale:   pct(m.abQualSales,  m.abQual),
       byStage:      m.byStage,
-      byStagePct:   (function() {
-        var o = {};
-        STAGES_ORDERED.forEach(function(s) { o[s] = pct(m.byStage[s], m.totalLeads); });
-        return o;
-      })()
+      byStagePct:   byStagePct
     };
   }).sort(function(a, b) { return a.name.localeCompare(b.name, 'ru'); });
 
+  // ИТОГО
   function sm(key) { return rows.reduce(function(s, r) { return s + (r[key] || 0); }, 0); }
   var T = {
     name: 'ИТОГО',
-    totalLeads:  sm('totalLeads'), abQual: sm('abQual'), abQualSales: sm('abQualSales'),
-    sales: sm('sales'), revenue: sm('revenue')
+    totalLeads:  sm('totalLeads'),  leadsPerDay:  parseFloat(sm('leadsPerDay').toFixed(2)),
+    abQual:      sm('abQual'),      abQualSales:  sm('abQualSales'),
+    sales:       sm('sales'),       revenue:      sm('revenue'),
+    forecast:    sm('forecast')
   };
-  T.abQualPct    = pct(T.abQual, T.totalLeads);
+  T.abQualPct    = pct(T.abQual,      T.totalLeads);
   T.avgCheck     = T.sales > 0 ? Math.round(T.revenue / T.sales) : 0;
-  T.convLeadSale = pct(T.sales, T.totalLeads);
+  T.convLeadSale = pct(T.sales,       T.totalLeads);
   T.convAbSale   = pct(T.abQualSales, T.abQual);
-  T.byStage      = {};
-  T.byStagePct   = {};
-  STAGES_ORDERED.forEach(function(s) {
-    T.byStage[s]    = rows.reduce(function(a, r) { return a + (r.byStage[s] || 0); }, 0);
+  T.byStage    = {};
+  T.byStagePct = {};
+  allStages.forEach(function(s) {
+    T.byStage[s]    = rows.reduce(function(a, r) { return a + (r.byStage[s]||0); }, 0);
     T.byStagePct[s] = pct(T.byStage[s], T.totalLeads);
   });
-
   rows.push(T);
-  return rows;
+
+  return { rows: rows, allStages: allStages, periodDays: periodDays, daysLeft: daysLeft };
 }
 
 // ── Рендер KPI ────────────────────────────────────────────────
-function renderKPI(managers, periodDays) {
-  var T = managers[managers.length - 1];
+function renderKPI(result) {
+  var T = result.rows[result.rows.length - 1];
   var cards = [
-    { label: 'Всего лидов',   value: num(T.totalLeads),       sub: (T.totalLeads / periodDays).toFixed(1) + ' в день' },
-    { label: 'Квал AB',       value: num(T.abQual),            sub: T.abQualPct + '% от лидов', warn: T.abQualPct < 30 },
-    { label: 'Продаж',        value: num(T.sales),             sub: 'конв. ' + T.convLeadSale + '%', warn: T.convLeadSale < 10 },
+    { label: 'Всего лидов',   value: num(T.totalLeads),       sub: T.leadsPerDay + ' в день' },
+    { label: 'Квал AB',       value: num(T.abQual),            sub: T.abQualPct + '% от лидов',   normKey: 'ab_qual_pct',    normVal: T.abQualPct  },
+    { label: 'Продаж',        value: num(T.sales),             sub: 'конв. ' + T.convLeadSale + '%', normKey: 'conv_lead_sale', normVal: T.convLeadSale },
     { label: 'Выручка',       value: money(T.revenue),         sub: 'ср. чек ' + money(T.avgCheck) },
-    { label: 'Конв. AB→прод', value: T.convAbSale + '%',      sub: 'из квал-лидов', warn: T.convAbSale < 20 }
+    { label: 'Прогноз месяц', value: money(T.forecast),        sub: 'выручка + темп × ' + result.daysLeft + ' дн.' },
+    { label: 'Конв. AB→прод', value: T.convAbSale + '%',      sub: 'из квал-лидов',              normKey: 'conv_ab_sale',   normVal: T.convAbSale }
   ];
-  document.getElementById('kpi-grid').innerHTML = cards.map(function(c) {
-    return '<div class="kpi-card' + (c.warn ? ' warn' : '') + '">'
+  el('kpi-grid').innerHTML = cards.map(function(c) {
+    var warn = c.normKey ? !checkNorm(c.normKey, c.normVal).ok : false;
+    return '<div class="kpi-card' + (warn ? ' warn' : '') + '">'
       + '<div class="kpi-label">' + c.label + '</div>'
       + '<div class="kpi-value">' + c.value + '</div>'
       + '<div class="kpi-sub">'   + c.sub   + '</div></div>';
@@ -312,25 +469,29 @@ function renderKPI(managers, periodDays) {
 }
 
 // ── Рендер таблицы менеджеров ─────────────────────────────────
-function renderManagersTable(managers) {
+function renderManagersTable(result) {
+  var rows = result.rows;
   var cols = [
-    ['Менеджер',    'name',         'str'],
-    ['Лидов',       'totalLeads',   'num'],
-    ['Квал AB',     'abQual',       'num'],
-    ['AB %',        'abQualPct',    'pct'],
-    ['Продаж',      'sales',        'num'],
-    ['Выручка',     'revenue',      'money'],
-    ['Ср. чек',     'avgCheck',     'money'],
-    ['К: лид→прод', 'convLeadSale', 'pct'],
-    ['К: AB→прод',  'convAbSale',   'pct']
+    { label: 'Менеджер',    key: 'name',         fmt: 'str',   group: '',          normKey: null },
+    { label: 'Лидов',       key: 'totalLeads',   fmt: 'num',   group: 'Лиды',      normKey: null },
+    { label: 'Лид/день',    key: 'leadsPerDay',  fmt: 'num2',  group: 'Лиды',      normKey: null },
+    { label: 'Квал AB',     key: 'abQual',       fmt: 'num',   group: 'AB Квал',   normKey: null },
+    { label: 'AB %',        key: 'abQualPct',    fmt: 'pct',   group: 'AB Квал',   normKey: 'ab_qual_pct' },
+    { label: 'Продаж',      key: 'sales',        fmt: 'num',   group: 'Продажи',   normKey: null },
+    { label: 'Выручка',     key: 'revenue',      fmt: 'money', group: 'Продажи',   normKey: null },
+    { label: 'Ср. чек',     key: 'avgCheck',     fmt: 'money', group: 'Продажи',   normKey: null },
+    { label: 'Прогноз',     key: 'forecast',     fmt: 'money', group: 'Продажи',   normKey: null },
+    { label: 'К: лид→прод', key: 'convLeadSale', fmt: 'pct',   group: 'Конверсии', normKey: 'conv_lead_sale' },
+    { label: 'К: AB→прод',  key: 'convAbSale',   fmt: 'pct',   group: 'Конверсии', normKey: 'conv_ab_sale' }
   ];
-  var groups = [
-    {label: '',          span: 1},
-    {label: 'Лиды',      span: 1},
-    {label: 'AB Квал',   span: 2},
-    {label: 'Продажи',   span: 3},
-    {label: 'Конверсии', span: 2}
-  ];
+
+  // Группы для шапки
+  var groups = [];
+  var lastG = null;
+  cols.forEach(function(c, i) {
+    if (c.group !== lastG) { groups.push({ label: c.group, span: 1, first: i }); lastG = c.group; }
+    else { groups[groups.length-1].span++; }
+  });
 
   var html = '<thead><tr class="group-row">';
   groups.forEach(function(g, i) {
@@ -338,109 +499,131 @@ function renderManagersTable(managers) {
   });
   html += '</tr><tr>';
   cols.forEach(function(c, i) {
-    html += '<th class="' + (i===0?'sticky-col':'') + '">' + c[0] + '</th>';
+    html += '<th class="' + (i===0?'sticky-col':'') + '">' + c.label + '</th>';
   });
   html += '</tr></thead><tbody>';
 
-  managers.forEach(function(m, mi) {
-    var isTotal = mi === managers.length - 1;
+  rows.forEach(function(m, mi) {
+    var isTotal = mi === rows.length - 1;
     html += '<tr class="' + (isTotal ? 'total-row' : '') + '">';
     cols.forEach(function(c, ci) {
       var sticky = ci === 0 ? ' sticky-col' : '';
-      var val    = m[c[1]];
-      var disp   = c[2]==='money' ? money(val) : c[2]==='pct' ? val+'%' : c[2]==='str' ? val : num(val);
-      var warn   = !isTotal && ((c[1]==='convLeadSale' && val<10) || (c[1]==='convAbSale' && val<20) || (c[1]==='abQualPct' && val<30));
-      html += '<td class="' + sticky + (warn?' warn':'') + '">' + disp + '</td>';
+      var val    = m[c.key];
+      var disp;
+      if      (c.fmt === 'money') disp = money(val);
+      else if (c.fmt === 'pct')   disp = val + '%';
+      else if (c.fmt === 'num2')  disp = parseFloat(val).toFixed(2);
+      else if (c.fmt === 'str')   disp = val;
+      else                        disp = num(val);
+
+      var warn = !isTotal && c.normKey && !checkNorm(c.normKey, val).ok;
+      html += '<td class="' + sticky + (warn ? ' warn' : '') + '">' + disp + '</td>';
     });
     html += '</tr>';
   });
   html += '</tbody>';
-  document.getElementById('managers-table').innerHTML = html;
+  el('managers-table').innerHTML = html;
 }
 
 // ── Рендер таблицы этапов ─────────────────────────────────────
-function renderStagesTable(managers) {
+function renderStagesTable(result) {
+  var rows = result.rows;
+  var allStages = result.allStages;
+
   var html = '<thead><tr><th class="sticky-col">Менеджер</th>';
-  STAGES_ORDERED.forEach(function(s) {
-    var isSale = SALE_STAGES.indexOf(s) >= 0;
-    var isLost = LOST_STAGES.indexOf(s) >= 0;
-    var style  = isSale ? ' style="background:#1b5e20"' : isLost ? ' style="background:#7f0000"' : '';
-    html += '<th' + style + ' title="' + s + '">' + (STAGE_SHORT[s] || s) + '</th>';
+  allStages.forEach(function(s) {
+    var cls = isSale(s) ? ' style="background:#1b5e20"' : isLost(s) ? ' style="background:#7f0000"' : ' style="background:#e65100"';
+    html += '<th' + cls + ' title="' + s + '">' + stageShort(s) + '</th>';
   });
   html += '</tr></thead><tbody>';
 
-  managers.forEach(function(m, mi) {
-    var isTotal = mi === managers.length - 1;
+  rows.forEach(function(m, mi) {
+    var isTotal = mi === rows.length - 1;
     html += '<tr class="' + (isTotal ? 'total-row' : '') + '">';
     html += '<td class="sticky-col">' + m.name + '</td>';
-    STAGES_ORDERED.forEach(function(s) {
-      var cnt  = m.byStage    ? (m.byStage[s]    || 0) : 0;
-      var pctV = m.byStagePct ? (m.byStagePct[s] || 0) : 0;
-      var cls  = SALE_STAGES.indexOf(s) >= 0 ? 'sale-stage' : LOST_STAGES.indexOf(s) >= 0 ? 'lost-stage' : '';
-      html += '<td class="' + cls + '">' + cnt + '<br><small style="color:#888">' + pctV + '%</small></td>';
+    allStages.forEach(function(s) {
+      var cnt  = (m.byStage    && m.byStage[s]    !== undefined) ? m.byStage[s]    : 0;
+      var pctV = (m.byStagePct && m.byStagePct[s] !== undefined) ? m.byStagePct[s] : 0;
+
+      // Проверяем норматив для этапов закрытия
+      var normKey = LOST_STAGE_NORM[s];
+      var warn    = !isTotal && normKey && !checkNorm(normKey, pctV).ok;
+      var cls     = warn ? 'warn' : isSale(s) ? 'sale-cell' : isLost(s) ? 'lost-cell' : 'other-cell';
+
+      html += '<td class="' + cls + '">' + num(cnt) + '<br><small style="color:inherit;opacity:.7">' + pctV + '%</small></td>';
     });
     html += '</tr>';
   });
   html += '</tbody>';
-  document.getElementById('stages-table').innerHTML = html;
+  el('stages-table').innerHTML = html;
+}
+
+// ── Короткое название этапа ───────────────────────────────────
+function stageShort(s) {
+  if (s.indexOf('успешно')    >= 0) return '✅ Успешно';
+  if (s.indexOf('предоплата') >= 0) return '✅ Предопл.';
+  if (s.indexOf('дорого')     >= 0) return '❌ Дорого';
+  if (s.indexOf('следующий')  >= 0) return '❌ В сл. раз';
+  if (s.indexOf('потребность')>= 0) return '❌ Нет потреб.';
+  if (s.indexOf('рассрочки')  >= 0) return '❌ Рассрочка';
+  if (s.indexOf('других')     >= 0) return '❌ Конкуренты';
+  if (s.indexOf('закрыто')    >= 0) return '❌ ' + s.replace('закрыто и не реализовано', '').replace(/[()]/g,'').trim();
+  if (s.length > 16) return s.slice(0, 14) + '…';
+  return s;
 }
 
 // ── Run ───────────────────────────────────────────────────────
 async function doRun() {
-  var from = document.getElementById('fromDate').value;
-  var to   = document.getElementById('toDate').value;
+  var from = el('fromDate').value;
+  var to   = el('toDate').value;
   if (!from || !to) { alert('Выберите период'); return; }
   if (from > to)    { alert('Дата "С" должна быть раньше "По"'); return; }
 
-  document.getElementById('loading-section').style.display = 'block';
-  document.getElementById('dashboard').style.display       = 'none';
-  document.getElementById('error-section').style.display   = 'none';
-  document.getElementById('empty-state').style.display     = 'none';
-  document.getElementById('runBtn').disabled = true;
+  show('loading-section');
+  hide('dashboard'); hide('error-section'); hide('empty-state');
+  el('runBtn').disabled = true;
 
   try {
     var leads = await fetchLeads(from, to);
 
     if (!leads.length) {
-      document.getElementById('loading-section').style.display = 'none';
-      document.getElementById('empty-state').style.display     = 'block';
-      document.getElementById('empty-state').textContent       = 'Нет лидов за выбранный период';
-      document.getElementById('header-meta').textContent       = 'Нет данных за ' + from + ' — ' + to;
-      document.getElementById('runBtn').disabled = false;
+      hide('loading-section');
+      el('empty-state').style.display = 'block';
+      el('empty-state').textContent = 'Нет лидов за выбранный период';
+      el('header-meta').textContent = 'Нет данных за ' + from + ' — ' + to;
+      el('runBtn').disabled = false;
       return;
     }
 
-    var periodDays = Math.max(1, Math.round((new Date(to) - new Date(from)) / 86400000) + 1);
-    var managers   = calcMetrics(leads);
-    var T          = managers[managers.length - 1];
+    var result = calcMetrics(leads, from, to);
+    var T = result.rows[result.rows.length - 1];
 
-    document.getElementById('header-meta').textContent =
-      from + ' — ' + to + '  |  Лидов: ' + T.totalLeads + '  |  Продаж: ' + T.sales + '  |  Выручка: ' + money(T.revenue);
+    el('header-meta').textContent =
+      from + ' — ' + to
+      + '  |  Лидов: ' + T.totalLeads
+      + '  |  Продаж: ' + T.sales
+      + '  |  Выручка: ' + money(T.revenue)
+      + '  |  Прогноз: ' + money(T.forecast);
 
-    renderKPI(managers, periodDays);
-    renderManagersTable(managers);
-    renderStagesTable(managers);
+    renderKPI(result);
+    renderManagersTable(result);
+    renderStagesTable(result);
 
-    document.getElementById('loading-section').style.display = 'none';
-    document.getElementById('dashboard').style.display       = 'block';
+    hide('loading-section');
+    show('dashboard');
 
   } catch(err) {
-    document.getElementById('loading-section').style.display = 'none';
-    document.getElementById('error-section').style.display   = 'block';
-    document.getElementById('error-text').textContent        = '❌ ' + err.message;
+    hide('loading-section');
+    show('error-section');
+    el('error-text').textContent = '❌ ' + err.message;
+    console.error(err);
   }
 
-  document.getElementById('runBtn').disabled = false;
+  el('runBtn').disabled = false;
 }
 
-// ── Utils ─────────────────────────────────────────────────────
-function num(v)   { return (+(v||0)).toLocaleString('ru-RU'); }
-function money(v) { return (+(v||0)).toLocaleString('ru-RU', {maximumFractionDigits:0}) + ' ₸'; }
-
 // ── Init ──────────────────────────────────────────────────────
-window.onload = function() {
-  setQuick('month');
-};
+window.onload = function() { setQuick('month'); };
 </script>
 </body>
 </html>
