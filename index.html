@@ -1,0 +1,164 @@
+/**
+ * =============================================
+ * Invictus Analytics — Sync Worker
+ * Railway cron: AmoCRM → Supabase
+ * =============================================
+ */
+
+require('dotenv').config();
+const cron = require('node-cron');
+const { createClient } = require('@supabase/supabase-js');
+
+// ── Config ────────────────────────────────────
+const AMO_SUBDOMAIN = 'invictusacademy2021';
+const PIPELINE_ID   = 7857790;
+const ABC_FIELD_ID  = 2035851;
+const SYNC_DAYS     = 90; // глубина синка в днях
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY  // service key — только для воркера, не для фронта
+);
+
+// ── AMO fetch helper ──────────────────────────
+async function amoFetch(path) {
+  const url = `https://${AMO_SUBDOMAIN}.amocrm.ru/api/v4${path}`;
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${process.env.AMO_TOKEN}` }
+  });
+  if (res.status === 204 || res.status === 404) return null;
+  if (res.status === 401) throw new Error('AMO 401: токен протух, обнови AMO_TOKEN');
+  if (!res.ok) throw new Error(`AMO ${res.status} на ${path}`);
+  return res.json();
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── Загрузка пользователей ────────────────────
+async function getUsers() {
+  const map = {};
+  let page = 1;
+  while (true) {
+    const data = await amoFetch(`/users?limit=50&page=${page}`);
+    const users = data?._embedded?.users || [];
+    if (!users.length) break;
+    users.forEach(u => { if (u?.id && u?.name) map[u.id] = u.name; });
+    if (!data._links?.next) break;
+    page++;
+  }
+  console.log(`[sync] загружено ${Object.keys(map).length} пользователей`);
+  return map;
+}
+
+// ── Загрузка статусов ─────────────────────────
+async function getStatusMap() {
+  const data = await amoFetch(`/leads/pipelines/${PIPELINE_ID}/statuses`);
+  const map = {};
+  (data?._embedded?.statuses || []).forEach(s => {
+    if (s?.id && s?.name) map[s.id] = s.name.toLowerCase().trim();
+  });
+  console.log(`[sync] загружено ${Object.keys(map).length} статусов`);
+  return map;
+}
+
+// ── Загрузка лидов ────────────────────────────
+async function fetchLeads(fromTs) {
+  const leads = [];
+  let page = 1;
+
+  while (true) {
+    const qs = [
+      `limit=250`,
+      `page=${page}`,
+      `filter[pipeline_id]=${PIPELINE_ID}`,
+      `filter[updated_at][from]=${fromTs}`,
+      `with=custom_fields`
+    ].join('&');
+
+    const data = await amoFetch(`/leads?${qs}`);
+    const batch = data?._embedded?.leads || [];
+    if (!batch.length) break;
+    leads.push(...batch);
+    console.log(`[sync] страница ${page}: ${batch.length} лидов (всего: ${leads.length})`);
+    if (!data._links?.next) break;
+    page++;
+    await sleep(150);
+  }
+
+  return leads;
+}
+
+// ── Основной синк ─────────────────────────────
+async function syncLeads() {
+  const startedAt = Date.now();
+  console.log(`\n[sync] ======= старт ${new Date().toISOString()} =======`);
+
+  try {
+    const fromTs = Math.floor(Date.now() / 1000 - SYNC_DAYS * 86400);
+
+    // Параллельно грузим пользователей и статусы
+    const [users, statusMap] = await Promise.all([getUsers(), getStatusMap()]);
+
+    // Грузим лиды
+    const leads = await fetchLeads(fromTs);
+    console.log(`[sync] итого лидов: ${leads.length}`);
+
+    if (!leads.length) {
+      console.log('[sync] нет новых лидов, пропускаем upsert');
+      return;
+    }
+
+    // Трансформируем
+    const rows = leads.map(lead => {
+      const abcField = (lead.custom_fields_values || []).find(f => f.field_id === ABC_FIELD_ID);
+      const abcVal   = String(abcField?.values?.[0]?.value || '').toLowerCase().trim();
+
+      return {
+        id:                    lead.id,
+        pipeline_id:           lead.pipeline_id,
+        status_id:             lead.status_id,
+        status_name:           statusMap[lead.status_id] || null,
+        responsible_user_id:   lead.responsible_user_id,
+        responsible_user_name: users[lead.responsible_user_id] || `ID:${lead.responsible_user_id}`,
+        price:                 lead.price || 0,
+        abc_qual:              abcVal || null,
+        created_at:            lead.created_at  ? new Date(lead.created_at  * 1000).toISOString() : null,
+        updated_at:            lead.updated_at  ? new Date(lead.updated_at  * 1000).toISOString() : null,
+        closed_at:             lead.closed_at   ? new Date(lead.closed_at   * 1000).toISOString() : null,
+        synced_at:             new Date().toISOString()
+      };
+    });
+
+    // Upsert батчами по 500
+    let upserted = 0;
+    for (let i = 0; i < rows.length; i += 500) {
+      const batch = rows.slice(i, i + 500);
+      const { error } = await supabase
+        .from('leads')
+        .upsert(batch, { onConflict: 'id' });
+
+      if (error) {
+        console.error(`[sync] ошибка upsert батч ${i / 500 + 1}:`, error.message);
+      } else {
+        upserted += batch.length;
+        console.log(`[sync] upsert батч ${i / 500 + 1}: ${batch.length} строк`);
+      }
+    }
+
+    const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
+    console.log(`[sync] ✅ готово: ${upserted} лидов за ${elapsed}с`);
+
+  } catch (err) {
+    console.error('[sync] ❌ ошибка:', err.message);
+  }
+}
+
+// ── Запуск ────────────────────────────────────
+console.log('[worker] Invictus Sync Worker запущен');
+console.log(`[worker] синхронизация каждые 30 минут, глубина: ${SYNC_DAYS} дней`);
+
+// Сразу при старте
+syncLeads();
+
+// Затем каждые 30 минут
+cron.schedule('*/30 * * * *', () => syncLeads());
